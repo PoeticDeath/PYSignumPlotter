@@ -14,9 +14,9 @@ def plot(numid, startnonce, nonces):
         o = 0
         for i in range(noncesize, 0, -hashsize):
             hashes[i - hashsize:i] = shabal256(bytes(hashes[i:][:scoops]))
-        finalhash = shabal256(bytes(hashes))
-        for i in range(0, noncesize):
-            hashes[i] ^= finalhash[i % hashsize]
+        finalhash = int.from_bytes(shabal256(bytes(hashes)), "big")
+        for i in range(0, noncesize, hashsize):
+            hashes[i:i + hashsize] = (int.from_bytes(hashes[i:i + hashsize], "big") ^ finalhash).to_bytes(hashsize, "big")
         hashes = bytes(hashes[:-16])
         for i in range(scoops):
             plotfile[i][(m - startnonce) * hashsize * 2:(m - startnonce) * hashsize * 2 + hashsize * 2] = hashes[i * hashsize * 2:i * hashsize * 2 + hashsize] + hashes[(scoops - i - 1) * hashsize * 2 + hashsize:(scoops - i - 1) * hashsize * 2 + hashsize * 2]
